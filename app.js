@@ -22,7 +22,7 @@ http.createServer(function (req, res) {
             });
         }
     );
-}).listen(1337, '127.0.0.1');
+}).listen(8080, '127.0.0.1');
 
 
 function htmlBuilder(content, callback){
@@ -65,18 +65,6 @@ function decorateOutput(content, callback){
                 row = row.replace("\\}", "\\}$ &nbsp;&nbsp;&nbsp;");
                 row = row.replace("Res", "Res ");
                 row = row.replace("Sigma'", "$Sigma'$");
-                break;
-            case 3:
-                day = "Wednesday";
-                break;
-            case 4:
-                day = "Thursday";
-                break;
-            case 5:
-                day = "Friday";
-                break;
-            case 6:
-                day = "Saturday";
                 break;
         }
         row = row.replace("\\Box", "$\\Box$");
