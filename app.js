@@ -11,7 +11,7 @@ var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1'
 http.createServer(function (req, res) {
     res.writeHead(200, {'Content-Type': 'text/html'});
 
-    exec('java -jar resolutionExercise.jar latex=1 maxVars=6',
+    exec('$OPENSHIFT_DATA_DIR/jdk1.8.0_20/bin/java -jar resolutionExercise.jar latex=1 maxVars=6',
         function (error, stdout, stderr){
             if(error !== null){
                 return res.end(error+"");
