@@ -14,12 +14,12 @@ http.createServer(function (req, res) {
     exec('java -jar resolutionExercise.jar latex=1 maxVars=6',
         function (error, stdout, stderr){
             if(error !== null){
-                return res.end(error);
+                return res.end(error+"");
             }
 
             decorateOutput(stdout, function(a){
                 htmlBuilder(a, function(result){
-                    res.write(result);
+                    res.write(result+"");
                     return res.end();
                 });
             });
