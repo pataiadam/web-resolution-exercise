@@ -1,85 +1,59 @@
 /**
- * Created by pataiadam on 2015.03.16..
+ * app.js
+ *
+ * Use `app.js` to run your app without `sails lift`.
+ * To start the server, run: `node app.js`.
+ *
+ * This is handy in situations where the sails CLI is not relevant or useful.
+ *
+ * For example:
+ *   => `node app.js`
+ *   => `forever start app.js`
+ *   => `node debug app.js`
+ *   => `modulus deploy`
+ *   => `heroku scale`
+ *
+ *
+ * The same command-line arguments are supported, e.g.:
+ * `node app.js --silent --port=80 --prod`
  */
 
-var http = require('http');
-var exec = require('child_process').exec;
+// Ensure we're in the project directory, so relative paths work as expected
+// no matter where we actually lift from.
+process.chdir(__dirname);
 
-var server_port = process.env.OPENSHIFT_NODEJS_PORT || 8080
-var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1'
+// Ensure a "sails" can be located:
+(function() {
+  var sails;
+  try {
+    sails = require('sails');
+  } catch (e) {
+    console.error('To run an app using `node app.js`, you usually need to have a version of `sails` installed in the same directory as your app.');
+    console.error('To do that, run `npm install sails`');
+    console.error('');
+    console.error('Alternatively, if you have sails installed globally (i.e. you did `npm install -g sails`), you can use `sails lift`.');
+    console.error('When you run `sails lift`, your app will still use a local `./node_modules/sails` dependency if it exists,');
+    console.error('but if it doesn\'t, the app will run with the global sails instead!');
+    return;
+  }
 
-http.createServer(function (req, res) {
-    res.writeHead(200, {'Content-Type': 'text/html'});
-
-    exec('$OPENSHIFT_DATA_DIR/jdk1.8.0_20/bin/java -jar resolutionExercise.jar latex=1 maxVars=6',
-        function (error, stdout, stderr){
-            if(error !== null){
-                return res.end(error+"");
-            }
-
-            decorateOutput(stdout, function(a){
-                htmlBuilder(a, function(result){
-                    res.write(result+"");
-                    return res.end();
-                });
-            });
-        }
-    );
-}).listen(server_port, server_ip_address);
-
-
-function htmlBuilder(content, callback){
-    var body = "<body>"+content+"</body>";
-    var script1 = "<script type=\"text/x-mathjax-config\"> MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}}); </script>";
-    var script2 = "<script type=\"text/javascript\" src=\"http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\"> </script>";
-    var head = "<head>"+script1+script2+"</head>";
-    callback("<html>"+head+body+"</html>");
-}
-
-function decorateOutput(content, callback){
-    var t = content.split("\n").map(function(i){
-        return i+'</br>'
-    });
-    var res = [];
-
-    var j;
-    for (i = 0; i < t.length; i++) {
-        var row = t[i];
-        j=i;
-        //cleancode powa
-        if(j>=14){
-            var dot = row.indexOf('.');
-            if(dot==5 || dot ==6){
-                j=42;
-            }else{
-                row = row.replace("Sigma \\models  F", "$Sigma \\models  F$");
-            }
-        }
-        switch (j) {
-            case 6:
-                row = "$$"+row+"$$";
-                break;
-            case 11:
-                row = "$$"+row+"$$";
-                break;
-            case 42:
-                row = "&nbsp;&nbsp;&nbsp;&nbsp;"+row;
-                row = row.replace("\\{", "$\\{");
-                row = row.replace("\\}", "\\}$ &nbsp;&nbsp;&nbsp;");
-                row = row.replace("Res", "Res ");
-                row = row.replace("Sigma'", "$Sigma'$");
-                break;
-        }
-        row = row.replace("\\Box", "$\\Box$");
-
-        res.push(row);
+  // Try to get `rc` dependency
+  var rc;
+  try {
+    rc = require('rc');
+  } catch (e0) {
+    try {
+      rc = require('sails/node_modules/rc');
+    } catch (e1) {
+      console.error('Could not find dependency: `rc`.');
+      console.error('Your `.sailsrc` file(s) will be ignored.');
+      console.error('To resolve this, run:');
+      console.error('npm install rc --save');
+      rc = function () { return {}; };
     }
+  }
 
 
-    var c='';
-    res.map(function(i){
-        c+=i;
-    })
-    callback(c);
-
-}
+  // Start server
+  sails.lift(rc('sails'));
+})();

@@ -1,1 +1,3 @@
-# web-resolution-exercise
+# web-resolution
+
+a [Sails](http://sailsjs.org) application
